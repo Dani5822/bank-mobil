@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    tools:context=".arfolyam"
+    style="@style/backgroundcolor"
+    >
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="66dp"
+        android:id="@+id/back"
+        android:src="@drawable/arfolyambackground"/>
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="61dp"
+        android:layout_centerVertical="true"
+        android:layout_alignLeft="@+id/back"
+        android:id="@+id/iconbal"
+        android:src="@drawable/up"
+        style="@style/backgroundcolor"/>
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@+id/iconbal"
+        android:id="@+id/datalayout"
+        >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textStyle="bold"
+           android:layout_marginTop="10dp"
+            android:layout_marginLeft="20dp"
+            android:id="@+id/currency"
+            style="@style/edittext"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@+id/currency"
+            android:layout_marginTop="10dp"
+            android:layout_marginLeft="20dp"
+            android:id="@+id/currentrate"
+            style="@style/edittext"/>
+
+    </RelativeLayout>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/datalayout"
+        android:textSize="12sp"
+        android:layout_marginTop="7dp"
+        android:layout_centerHorizontal="true"
+        android:id="@+id/change"/>
+</RelativeLayout>

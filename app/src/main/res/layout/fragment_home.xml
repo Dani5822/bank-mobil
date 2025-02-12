@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ui.home.HomeFragment"
+    style="@style/backgroundcolor"
+    android:padding="15dp"
+    >
+    <include layout="@layout/cardlayout"
+        android:id="@+id/cardlayout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"/>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/cardlayout"
+        android:layout_marginTop="20dp"
+        android:gravity="center"
+        android:id="@+id/valtas"
+        >
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Pénznem Váltás:"
+            android:textSize="20sp"
+            android:id="@+id/cim"
+            android:layout_marginBottom="15dp"
+            style="@style/edittext"/>
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/cim">
+    <include layout="@layout/activity_arfolyam"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:id="@+id/arfolyam1"
+        android:layout_weight="1"
+        android:layout_marginHorizontal="10dp"/>
+
+        <include layout="@layout/activity_arfolyam"
+            android:layout_width="0dp"
+            android:id="@+id/arfolyam2"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="10dp"
+            />
+    </LinearLayout>
+    </RelativeLayout>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Tranzakciók:"
+        android:textSize="20sp"
+        android:layout_below="@+id/valtas"
+        android:id="@+id/cim2"
+        android:layout_marginTop="15dp"
+        style="@style/edittext"
+        />
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/cim2"
+        android:layout_marginTop="15dp">
+
+        <ListView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/transactionsListView"
+            />
+
+    </RelativeLayout>
+
+</RelativeLayout>
