@@ -94,6 +94,7 @@ import static com.example.bankApp.data.connect.RetrofitClient.getInstance;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.view.View;
@@ -104,6 +105,7 @@ import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -124,7 +126,6 @@ public class popUpAddUser extends Activity {
     Button back, send;
     EditText email;
     String cardid;
-    private CardInfoViewModel cardInfoViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -139,6 +140,10 @@ public class popUpAddUser extends Activity {
         init();
 
         DisplayMetrics dm=new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(dm);
+        int width=dm.widthPixels;
+        int height=dm.heightPixels;
+        getWindow().setLayout((int) ( width*.8), (int) (height*.25));
 
         back.setOnClickListener(view -> {setResult(Activity.RESULT_CANCELED, new Intent());finish();});
 

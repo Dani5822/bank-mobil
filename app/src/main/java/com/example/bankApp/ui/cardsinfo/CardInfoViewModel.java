@@ -34,12 +34,11 @@ public class CardInfoViewModel extends AndroidViewModel {
 
 
     public void fetchCardInfo(String cardId, String accessToken) {
-        retrofitApiService.getUsersByCardID(cardId, accessToken).enqueue(new Callback<Card>() {
+        retrofitApiService.getCardUsers(cardId, accessToken).enqueue(new Callback<Card>() {
             @Override
             public void onResponse(Call<Card> call, Response<Card> response) {
                 if (response.isSuccessful()) {
                     cardLiveData.setValue(response.body());
-                    System.out.println(cardLiveData.hasActiveObservers());
                 } else {
                     System.out.println(response.message());
                 }

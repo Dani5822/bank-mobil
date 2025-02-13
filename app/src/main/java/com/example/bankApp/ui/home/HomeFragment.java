@@ -3,6 +3,7 @@ package com.example.bankApp.ui.home;
 import static com.example.bankApp.data.connect.RetrofitClient.getEuroInstance;
 import static com.example.bankApp.data.connect.RetrofitClient.getInstance;
 
+import android.animation.Animator;
 import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
 import android.os.Bundle;
@@ -57,14 +58,6 @@ public class HomeFragment extends Fragment {
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        homeViewModel = new ViewModelProvider(this, new ViewModelProvider.Factory() {
-            @NonNull
-            @Override
-            public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
-                RetrofitApiService apiService = getEuroInstance().create(RetrofitApiService.class);
-                return (T) new HomeViewModel(apiService);
-            }
-        }).get(HomeViewModel.class);
 
         binding = FragmentHomeBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
@@ -107,44 +100,31 @@ public class HomeFragment extends Fragment {
             }
         });
 
-        homeViewModel.getCurrency().observe(getViewLifecycleOwner(), new Observer<currency>() {
-            @Override
-            public void onChanged(currency currency) {
-                if (currency != null) {
-
-                    binding.arfolyam1.currency.setText("EUR");
-                    binding.arfolyam1.currentrate.setText(String.format("%.2f HUF", currency.getEur().get("huf")));
-                    binding.arfolyam2.currency.setText("USD");
-                    binding.arfolyam2.currentrate.setText(String.format("%.2f HUF", currency.getEur().get("usd") * currency.getEur().get("huf")));
-
-                }
-            }
-        });
 
         fetchPastCurrency(1);
-        homeViewModel.loadCurrency("eur");
         db = 0;
         binding.cardlayout.card.setOnTouchListener(new OnSwipeTouchListener(getContext()) {
             @Override
-            public void onSwipeLeft() {
+            public void onSwipeLeft() throws InterruptedException {
                 super.onSwipeLeft();
-                db--;
-                if (db < 0) {
-                    db = user.getCards().length - 1;
+                db++;
+                if (db == user.getCards().length) {
+                    db = 0;
                 }
-                //slideCard(binding.cardlayout.card, -binding.cardlayout.card.getWidth());
+
+                slideCard(binding.cardlayout.frame, -binding.cardlayout.card.getWidth());
                 activeCard = user.getCards()[db];
                 updateUI();
             }
 
             @Override
-            public void onSwipeRight() {
+            public void onSwipeRight() throws InterruptedException {
                 super.onSwipeRight();
-                db++;
-                if (db == user.getCards().length) {
-                    db = 0;
+                db--;
+                if (db < 0) {
+                    db = user.getCards().length - 1;
                 }
-                //slideCard(binding.cardlayout.card, binding.cardlayout.card.getWidth());
+                slideCard(binding.cardlayout.frame, binding.cardlayout.card.getWidth());
                 activeCard = user.getCards()[db];
                 updateUI();
             }
@@ -263,6 +243,7 @@ public class HomeFragment extends Fragment {
 
     public void updatechange() {
         if (pastcurrency != null && currentCurrency != null) {
+            binding.arfolyam1.currency.setText("EUR");
             double huf = pastcurrency.getEur().getOrDefault("huf", 0.0);
             double currentHuf = currentCurrency.getEur().getOrDefault("huf", 0.0);
             double szazalek = huf != 0 ? ((currentHuf - huf) / huf) * 100 : 0;
@@ -270,6 +251,7 @@ public class HomeFragment extends Fragment {
             binding.arfolyam1.change.setText(String.format("%.2f", huf) + " (" + String.format("%.2f", szazalek) + "%)");
             binding.arfolyam1.iconbal.setImageResource(szazalek >= 0 ? R.drawable.up : R.drawable.down);
 
+            binding.arfolyam2.currency.setText("USD");
             double pastUsd = huf / pastcurrency.getEur().getOrDefault("usd", 0.0);
             double usd = currentHuf / currentCurrency.getEur().getOrDefault("usd", 0.0);
             double szazalek2 = pastUsd != 0 ? ((usd - pastUsd) / pastUsd) * 100 : 0;
@@ -282,10 +264,43 @@ public class HomeFragment extends Fragment {
         }
     }
 
-    private void slideCard(View card, float toX) {
+    private void slideCard(View card, float toX) throws InterruptedException {
         ObjectAnimator animator = ObjectAnimator.ofFloat(card, "translationX", toX);
         animator.setAutoCancel(true);
-        animator.setDuration(100); // Animáció időtartama 100 ms
+        animator.setDuration(100);
+        animator.start();
+        animator.addListener(new ObjectAnimator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animation) {
+                binding.cardlayout.card.setClickable(false);
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                updateUI();
+                slideCardvissza(card,0, -toX);
+                slideCardvissza(card,100, 0);
+                binding.cardlayout.card.setClickable(true);
+            }
+
+            @Override
+            public void onAnimationCancel(@NonNull Animator animator) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(@NonNull Animator animator) {
+
+            }
+
+
+        });
+    }
+
+    private void slideCardvissza(View card,int time, float toX)  {
+        ObjectAnimator animator = ObjectAnimator.ofFloat(card, "translationX", toX);
+        animator.setAutoCancel(true);
+        animator.setDuration(time);
         animator.start();
     }
 }

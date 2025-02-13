@@ -67,8 +67,11 @@ public interface RetrofitApiService {
     @FormUrlEncoded
     Call<Card> createCard(@Header("authorization") String token, @Field("currency") String currency, @Field("ownerName") String ownerName, @Field("userId") String userId);
 
-    @GET("accounts/alluser/{id}")
+    @GET("accounts/user/{id}")
     Call<Card> getUsersByCardID(@Path("id") String cardid, @Header("authorization") String token);
+
+    @GET("accounts/alluser/{id}")
+    Call<Card> getCardUsers(@Path("id") String cardid, @Header("authorization") String token);
 
     @PATCH("accounts/disconnect/{id}")
     @FormUrlEncoded

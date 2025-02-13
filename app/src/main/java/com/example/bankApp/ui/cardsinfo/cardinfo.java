@@ -297,7 +297,7 @@ public class cardinfo extends Fragment {
         binding = FragmentCardinfoBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
         cardId = getArguments().getString("cardId");
-
+        System.out.println(cardId);
         cardInfoViewModel = new ViewModelProvider(this).get(CardInfoViewModel.class);
 
         cardInfoViewModel.getCardLiveData().observe(this.getViewLifecycleOwner(),cardObserver);

@@ -49,7 +49,8 @@ public class TransactionAdapter extends BaseAdapter {
         transactionName.setText(tarnsactionList.get(i).getDescription());
         transactionAmount.setText(tarnsactionList.get(i).getTotal()+"");
         transactioncategory.setText(tarnsactionList.get(i).getCategory());
-        if(tarnsactionList.get(i).getClass()== Income.class)
+        System.out.println(tarnsactionList.get(i).getClass());
+        if(tarnsactionList.get(i).getClass()== Income.class) {
             switch (tarnsactionList.get(i).getCategory()) {
                 case "Salary":
                     transactionIcon.setImageResource(R.drawable.salary);
@@ -57,8 +58,11 @@ public class TransactionAdapter extends BaseAdapter {
                 case "Other":
                     transactionIcon.setImageResource(R.drawable.income);
                     break;
+                case "Transaction":
+                    transactionIcon.setImageResource(R.drawable.income);
+                    break;
             }
-        else{
+        }else{
             switch (tarnsactionList.get(i).getCategory()){
                 case "Shopping":
                     transactionIcon.setImageResource(R.drawable.shopping);
@@ -70,6 +74,9 @@ public class TransactionAdapter extends BaseAdapter {
                     transactionIcon.setImageResource(R.drawable.rent);
                     break;
                 case "Other":
+                    transactionIcon.setImageResource(R.drawable.expense);
+                    break;
+                case "Transaction":
                     transactionIcon.setImageResource(R.drawable.expense);
                     break;
             }
