@@ -49,7 +49,6 @@ public class TransactionAdapter extends BaseAdapter {
         transactionName.setText(tarnsactionList.get(i).getDescription());
         transactionAmount.setText(tarnsactionList.get(i).getTotal()+"");
         transactioncategory.setText(tarnsactionList.get(i).getCategory());
-        System.out.println(tarnsactionList.get(i).getClass());
         if(tarnsactionList.get(i).getClass()== Income.class) {
             switch (tarnsactionList.get(i).getCategory()) {
                 case "Salary":

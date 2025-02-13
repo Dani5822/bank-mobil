@@ -1,243 +1,5 @@
 package com.example.bankApp.ui.cardsinfo;
 
-/*import static com.example.bankApp.data.connect.RetrofitClient.getEuroInstance;
-import static com.example.bankApp.data.connect.RetrofitClient.getInstance;
-
-import android.app.Application;
-import android.content.Intent;
-import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.TableRow;
-import android.widget.TextView;
-import android.widget.Toast;
-
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentActivity;
-import androidx.navigation.Navigation;
-
-import com.example.bankApp.R;
-import com.example.bankApp.data.connect.RetrofitApiService;
-import com.example.bankApp.data.model.Card;
-import com.example.bankApp.data.model.LoggedInUser;
-import com.example.bankApp.databinding.FragmentCardinfoBinding;
-import com.example.bankApp.global;
-import com.google.gson.JsonObject;
-
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-
-public class cardinfo extends Fragment {
-
-    private FragmentCardinfoBinding binding;
-    private String cardId;
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        binding = FragmentCardinfoBinding.inflate(inflater, container, false);
-        View root = binding.getRoot();
-        cardId = getArguments().getString("cardId");
-
-        init();
-        binding.addUserButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                System.out.println("add user");
-                Intent intent = new Intent(getContext(), popUpAddUser.class);
-                intent.putExtra("cardId", cardId);
-                startActivity(intent);
-            }
-        });
-        return root;
-    }
-
-    public void init() {
-        RetrofitApiService retrofitApiService = getInstance().create(RetrofitApiService.class);
-        retrofitApiService.getUsersByCardID(cardId, ((global) getActivity().getApplication()).getAccess_token()).enqueue(new Callback<Card>() {
-            @Override
-            public void onResponse(Call<Card> call, Response<Card> response) {
-                if (response.isSuccessful()) {
-                    Card card = response.body();
-                    ArrayAdapter<CharSequence> staticAdapter = ArrayAdapter
-                            .createFromResource(getContext(), R.array.currencies,
-                                    android.R.layout.simple_spinner_item);
-
-                    staticAdapter
-                            .setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-
-                    binding.currency.setSelection(staticAdapter.getPosition(card.getCurrency()));
-                    binding.currency.setAdapter(staticAdapter);
-                    binding.card.cardname.setText(card.getOwnerName());
-                    if (card.getCurrency().equals("HUF")) {
-                        int x = Math.round(card.getTotal());
-                        binding.card.balance.setText(String.format("%d ", x) + binding.currency.getSelectedItem().toString());
-                    } else {
-                        binding.card.balance.setText(String.format("%.2f ", card.getTotal()) + binding.currency.getSelectedItem().toString());
-                    }
-
-                    binding.save.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            binding.loading.setVisibility(View.VISIBLE);
-                            String currency = binding.currency.getSelectedItem().toString();
-                            retrofitApiService.updateCard(((global) getActivity().getApplication()).getAccess_token(), cardId, currency).enqueue(new Callback<Card>() {
-                                @Override
-                                public void onResponse(Call<Card> call, Response<Card> response) {
-                                    if (response.isSuccessful()) {
-                                        binding.loading.setVisibility(View.INVISIBLE);
-                                        Toast.makeText(getContext(), "Sikeres módosítás", Toast.LENGTH_SHORT).show();
-                                        Navigation.findNavController(getView()).navigate(R.id.nav_gallery);
-                                    } else {
-                                        binding.loading.setVisibility(View.INVISIBLE);
-                                        Toast.makeText(getContext(), "Sikertelen módosítás", Toast.LENGTH_SHORT).show();
-                                        System.out.println(response.message());
-                                    }
-                                }
-
-                                @Override
-                                public void onFailure(Call<Card> call, Throwable t) {
-                                    binding.loading.setVisibility(View.INVISIBLE);
-                                    Toast.makeText(getContext(), "Sikertelen módosítás", Toast.LENGTH_SHORT).show();
-                                    System.out.println(t.getMessage());
-                                }
-                            });
-                        }
-                    });
-
-
-                    binding.currency.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                        @Override
-                        public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                            RetrofitApiService currencyService = getEuroInstance().create(RetrofitApiService.class);
-                            currencyService.getRatesJson(binding.currency.getSelectedItem().toString().toLowerCase()).enqueue(new Callback<JsonObject>() {
-                                @Override
-                                public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
-                                    if (response.isSuccessful()) {
-                                        JsonObject eur = response.body().getAsJsonObject(binding.currency.getSelectedItem().toString().toLowerCase());
-                                        double rate = eur.get("huf").getAsDouble();
-                                        if (binding.currency.getSelectedItem().equals("HUF")) {
-                                            int x = (int) Math.round(card.getTotal() / rate);
-                                            binding.card.balance.setText(String.format("%d ", x) + binding.currency.getSelectedItem().toString());
-                                        } else {
-                                            binding.card.balance.setText(String.format("%.2f ", card.getTotal() / rate) + binding.currency.getSelectedItem().toString());
-                                        }
-
-                                    } else {
-                                        System.out.println(response.message());
-                                    }
-                                }
-
-                                @Override
-                                public void onFailure(Call<JsonObject> call, Throwable t) {
-                                    System.out.println(t.getMessage());
-                                }
-                            });
-                        }
-
-                        @Override
-                        public void onNothingSelected(AdapterView<?> adapterView) {
-
-                        }
-                    });
-
-                    updateCardUserList(getActivity());
-
-                }
-            }
-
-            @Override
-            public void onFailure(Call<Card> call, Throwable t) {
-                System.out.println(t.getMessage());
-            }
-        });
-
-    }
-        public void updateCardUserList(FragmentActivity activity) {
-            Application application = activity.getApplication();
-        RetrofitApiService retrofitApiService = getInstance().create(RetrofitApiService.class);
-            retrofitApiService.getUsersByCardID(cardId, ((global) application).getAccess_token()).enqueue(new Callback<Card>() {
-                @Override
-                public void onResponse(Call<Card> call, Response<Card> response) {
-                    if (response.isSuccessful()){
-                        Card card = response.body();
-                        for (LoggedInUser user : card.getUsers()) {
-                            TableRow row = new TableRow(getContext());
-                            row.setWeightSum(4);
-                            TableRow.LayoutParams lp = new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT);
-                            lp.weight = 1;
-                            TextView name = new TextView(getContext());
-                            TextView email = new TextView(getContext());
-                            Button delete = new Button(getContext());
-
-                            name.setText(user.getFirstname() + " " + user.getLastname());
-                            name.setLayoutParams(lp);
-                            name.setTextSize(15);
-                            name.setTextAppearance(R.style.edittext);
-
-                            email.setText(user.getEmail());
-                            email.setLayoutParams(lp);
-                            email.setTextSize(15);
-                            email.setTextAppearance(R.style.edittext);
-
-                            lp.weight = 2;
-                            delete.setText("Delete");
-                            delete.setLayoutParams(lp);
-                            delete.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
-                            delete.setBackgroundColor(getResources().getColor(R.color.red, null));
-                            delete.setOnClickListener(new View.OnClickListener() {
-                                @Override
-                                public void onClick(View v) {
-                                    if (user.getId().equals(card.getUsers()[0].getId())) {
-                                        Toast.makeText(getContext(), "Nem tudod kitörölni a tulajdonost!", Toast.LENGTH_SHORT).show();
-                                        return;
-                                    } else if (user.getId().equals(((global) getActivity().getApplication()).getId())) {
-                                        Toast.makeText(getContext(), "Nem tudod kitörölni magad!", Toast.LENGTH_SHORT).show();
-                                        return;
-                                    }
-                                    retrofitApiService.disconnectUser(((global) getActivity().getApplication()).getAccess_token(), cardId, user.getId()).enqueue(new Callback<Card>() {
-                                        @Override
-                                        public void onResponse(Call<Card> call, Response<Card> response) {
-                                            System.out.println(response);
-                                            if (response.isSuccessful()) {
-                                                binding.table.removeView(row);
-                                            } else {
-                                                System.out.println(response.message());
-                                            }
-                                        }
-
-                                        @Override
-                                        public void onFailure(Call<Card> call, Throwable t) {
-                                            System.out.println(t.getMessage());
-                                        }
-                                    });
-                                }
-                            });
-
-                            row.addView(name);
-                            row.addView(email);
-                            row.addView(delete);
-                            binding.table.addView(row);
-                        }
-                    }else{
-                        System.out.println(response.message());
-
-                    }
-                }
-
-                @Override
-                public void onFailure(Call<Card> call, Throwable t) {
-                    System.out.println(t.getMessage());
-                }
-            });
-        };
-}*/
 
 import static com.example.bankApp.data.connect.RetrofitClient.getEuroInstance;
 
@@ -246,14 +8,14 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.Gravity;
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.PopupWindow;
+
 import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -276,7 +38,6 @@ import com.example.bankApp.databinding.FragmentCardinfoBinding;
 import com.example.bankApp.global;
 import com.google.gson.JsonObject;
 
-import org.xmlpull.v1.XmlPullParser;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -289,7 +50,6 @@ public class cardinfo extends Fragment {
     private String accessToken;
     private CardInfoViewModel cardInfoViewModel;
     private final Observer<Card> cardObserver = this::updateUI;
-    private static final int REQUEST_CODE = 1;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -297,7 +57,6 @@ public class cardinfo extends Fragment {
         binding = FragmentCardinfoBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
         cardId = getArguments().getString("cardId");
-        System.out.println(cardId);
         cardInfoViewModel = new ViewModelProvider(this).get(CardInfoViewModel.class);
 
         cardInfoViewModel.getCardLiveData().observe(this.getViewLifecycleOwner(),cardObserver);
