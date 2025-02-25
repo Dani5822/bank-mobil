@@ -6,7 +6,6 @@ public class Transaction {
     private final String id;
     private String category;
     private String description;
-    private String vendor;
     private double total;
     private String userId;
     private String accountId;
@@ -17,12 +16,11 @@ public class Transaction {
     private final Date createdAt;
     private Date updatedAt;
 
-    public Transaction(String id, Date createdAt, String category, String description, String vendor, float total, String userId, String accountId, int repeatAmmount, String repeateMetric, Date repeateStart, Date repeatEnd, Date updatedAt) {
+    public Transaction(String id, Date createdAt, String category, String description, float total, String userId, String accountId, int repeatAmmount, String repeateMetric, Date repeateStart, Date repeatEnd, Date updatedAt) {
         this.id = id;
         this.createdAt = createdAt;
         this.category = category;
         this.description = description;
-        this.vendor = vendor;
         this.total = total;
         this.userId = userId;
         this.accountId = accountId;
@@ -51,14 +49,6 @@ public class Transaction {
 
     public void setDescription(String description) {
         this.description = description;
-    }
-
-    public String getVendor() {
-        return vendor;
-    }
-
-    public void setVendor(String vendor) {
-        this.vendor = vendor;
     }
 
     public double getTotal() {
@@ -135,7 +125,6 @@ public class Transaction {
                 "id='" + id + '\'' +
                 ", category='" + category + '\'' +
                 ", description='" + description + '\'' +
-                ", vendor='" + vendor + '\'' +
                 ", total=" + total +
                 ", userId='" + userId + '\'' +
                 ", accountId='" + accountId + '\'' +

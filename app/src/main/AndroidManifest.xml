@@ -20,6 +20,9 @@
             android:name=".ui.cardsinfo.popUpAddUser"
             android:exported="false"
             android:theme="@style/Theme.Navigateside.costume"/>
+        <activity android:name=".ui.home.Transaction"
+            android:exported="false"
+            android:theme="@style/Theme.Navigateside.costume"/>
         <activity
             android:name=".arfolyam"
             android:exported="false" />

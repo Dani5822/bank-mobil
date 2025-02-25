@@ -14,8 +14,8 @@ import java.util.ArrayList;
 
 public class TransactionAdapter extends BaseAdapter {
 
-    private ArrayList<Transaction> tarnsactionList;
-    private Context context;
+    private final ArrayList<Transaction> tarnsactionList;
+    private final Context context;
 
     public TransactionAdapter(ArrayList<Transaction> tarnsactionList, Context context) {
         this.tarnsactionList = tarnsactionList;
@@ -39,17 +39,17 @@ public class TransactionAdapter extends BaseAdapter {
 
     @Override
     public View getView(int i, View view, ViewGroup viewGroup) {
-        view = LayoutInflater.from(context).inflate(R.layout.transactionlistviewitem,viewGroup,false);
+        view = LayoutInflater.from(context).inflate(R.layout.transactionlistviewitem, viewGroup, false);
 
         TextView transactionName = view.findViewById(R.id.name);
         TextView transactionAmount = view.findViewById(R.id.amount);
         TextView transactioncategory = view.findViewById(R.id.category);
         ImageView transactionIcon = view.findViewById(R.id.kep);
 
-        transactionName.setText(tarnsactionList.get(i).getDescription());
-        transactionAmount.setText(tarnsactionList.get(i).getTotal()+"");
-        transactioncategory.setText(tarnsactionList.get(i).getCategory());
-        if(tarnsactionList.get(i).getClass()== Income.class) {
+        transactionName.setText(tarnsactionList.get(i).getCategory());
+        transactionAmount.setText(tarnsactionList.get(i).getTotal() + "");
+        transactioncategory.setText(tarnsactionList.get(i).getDescription());
+        if (tarnsactionList.get(i).getClass() == Income.class) {
             switch (tarnsactionList.get(i).getCategory()) {
                 case "Salary":
                     transactionIcon.setImageResource(R.drawable.salary);
@@ -61,8 +61,8 @@ public class TransactionAdapter extends BaseAdapter {
                     transactionIcon.setImageResource(R.drawable.income);
                     break;
             }
-        }else{
-            switch (tarnsactionList.get(i).getCategory()){
+        } else {
+            switch (tarnsactionList.get(i).getCategory()) {
                 case "Shopping":
                     transactionIcon.setImageResource(R.drawable.shopping);
                     break;
@@ -81,10 +81,6 @@ public class TransactionAdapter extends BaseAdapter {
             }
 
         }
-
-
-
-
 
         return view;
     }

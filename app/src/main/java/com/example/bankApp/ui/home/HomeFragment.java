@@ -6,17 +6,19 @@ import static com.example.bankApp.data.connect.RetrofitClient.getInstance;
 import android.animation.Animator;
 import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModel;
-import androidx.lifecycle.ViewModelProvider;
 
 import com.example.bankApp.R;
 import com.example.bankApp.data.connect.RetrofitApiService;
@@ -45,6 +47,8 @@ public class HomeFragment extends Fragment {
 
     private static LoggedInUser user;
     private final ArrayList<Transaction> transactions = new ArrayList<>();
+    private final ArrayList<Income> incomes = new ArrayList<>();
+    private final ArrayList<Expense> expenses = new ArrayList<>();
     private FragmentHomeBinding binding;
     private HomeViewModel homeViewModel;
     private currency pastcurrency;
@@ -80,15 +84,14 @@ public class HomeFragment extends Fragment {
         apiService.getUserById(id, ((global) getActivity().getApplication()).getAccess_token()).enqueue(new Callback<LoggedInUser>() {
             @Override
             public void onResponse(Call<LoggedInUser> call, Response<LoggedInUser> response) {
-
                 if (response.isSuccessful() && response.body() != null) {
                     user = response.body();
                     transactions.clear();
                     if (user.getCards().length > 0) {
                         activeCard = user.getCards()[0];
                     }
-                        updateUI();
-                }else{
+                    updateUI();
+                } else {
                     System.out.println("Error fetching user: " + response.message());
                 }
             }
@@ -104,6 +107,7 @@ public class HomeFragment extends Fragment {
         fetchPastCurrency(1);
         db = 0;
         binding.cardlayout.card.setOnTouchListener(new OnSwipeTouchListener(getContext()) {
+
             @Override
             public void onSwipeLeft() throws InterruptedException {
                 super.onSwipeLeft();
@@ -127,6 +131,16 @@ public class HomeFragment extends Fragment {
                 slideCard(binding.cardlayout.frame, binding.cardlayout.card.getWidth());
                 activeCard = user.getCards()[db];
                 updateUI();
+            }
+        });
+
+        binding.felvetel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getActivity(), com.example.bankApp.ui.home.Transaction.class);
+                intent.putExtra("cardid", activeCard.getId());
+                intent.putExtra("userId", user.getId());
+                someActivityResultLauncher.launch(intent);
             }
         });
 
@@ -182,28 +196,25 @@ public class HomeFragment extends Fragment {
     }
 
     private void updateUI() {
-        transactions.clear();
         RetrofitApiService apiService = getInstance().create(RetrofitApiService.class);
         Card card = activeCard;
         if (card != null) {
-            if (card.getCurrency().equals("HUF")) {
-                int x = Math.round(card.getTotal());
-                binding.cardlayout.balance.setText(x + " HUF");
-            } else {
-                binding.cardlayout.balance.setText(String.format("%.2f", card.getTotal()) + " " + card.getCurrency());
-            }
+            updateTotal();
             binding.cardlayout.cardname.setText(card.getOwnerName());
 
             apiService.getallexbycardid(card.getId(), ((global) getActivity().getApplication()).getAccess_token()).enqueue(new Callback<Expense[]>() {
                 @Override
                 public void onResponse(Call<Expense[]> call, Response<Expense[]> response) {
                     if (response.isSuccessful() && response.body() != null) {
-                        Transaction[] expenses = response.body();
-                        transactions.addAll(Arrays.asList(expenses));
-                        updatetransaction();
+                        Expense[] expenseslocal = response.body();
+                        expenses.clear();
+                        expenses.addAll(Arrays.asList(expenseslocal));
+
                     } else {
+                        expenses.clear();
                         System.out.println("Error fetching expenses: " + response.message());
                     }
+                    updatetransaction();
                 }
 
                 @Override
@@ -216,12 +227,15 @@ public class HomeFragment extends Fragment {
                 @Override
                 public void onResponse(Call<Income[]> call, Response<Income[]> response) {
                     if (response.isSuccessful() && response.body() != null) {
-                        Transaction[] incomes = response.body();
-                        transactions.addAll(Arrays.stream(incomes).collect(Collectors.toList()));
-                        updatetransaction();
+                        Income[] incomeslocal = response.body();
+                        incomes.clear();
+                        incomes.addAll(Arrays.stream(incomeslocal).collect(Collectors.toList()));
+
                     } else {
+                        incomes.clear();
                         System.out.println("Error fetching incomes: " + response.message());
                     }
+                    updatetransaction();
                 }
 
                 @Override
@@ -229,15 +243,35 @@ public class HomeFragment extends Fragment {
                     System.out.println("Error fetching incomes: " + t.getMessage());
                 }
             });
-        }else {
+        } else {
             binding.cardlayout.card.setImageResource(R.drawable.nocard);
         }
     }
 
     public void updatetransaction() {
+        transactions.clear();
+        transactions.addAll(incomes);
+        transactions.addAll(expenses);
+        notifyDataSetChanged();
         if (transactions.size() > 0 && transactions != null) {
             transactions.sort((a, b) -> b.getCreatedAt().compareTo(a.getCreatedAt()));
-            binding.transactionsListView.setAdapter(new TransactionAdapter(transactions, HomeFragment.this.getContext()));
+                binding.transactionsListView.setAdapter(new TransactionAdapter(transactions, HomeFragment.this.getContext()));
+        }
+        updateTotal();
+    }
+
+    public void updateTotal(){
+        if (activeCard.getCurrency().equals("HUF")) {
+            int x = Math.round(activeCard.getTotal());
+            binding.cardlayout.balance.setText(x + " HUF");
+        } else {
+            binding.cardlayout.balance.setText(String.format("%.2f", activeCard.getTotal()) + " " + activeCard.getCurrency());
+        }
+    }
+
+    private void notifyDataSetChanged() {
+        if (binding.transactionsListView.getAdapter() != null) {
+            ((TransactionAdapter) binding.transactionsListView.getAdapter()).notifyDataSetChanged();
         }
     }
 
@@ -278,8 +312,8 @@ public class HomeFragment extends Fragment {
             @Override
             public void onAnimationEnd(Animator animation) {
                 updateUI();
-                slideCardvissza(card,0, -toX);
-                slideCardvissza(card,100, 0);
+                slideCardvissza(card, 0, -toX);
+                slideCardvissza(card, 100, 0);
                 binding.cardlayout.card.setClickable(true);
             }
 
@@ -297,10 +331,22 @@ public class HomeFragment extends Fragment {
         });
     }
 
-    private void slideCardvissza(View card,int time, float toX)  {
+    private void slideCardvissza(View card, int time, float toX) {
         ObjectAnimator animator = ObjectAnimator.ofFloat(card, "translationX", toX);
         animator.setAutoCancel(true);
         animator.setDuration(time);
         animator.start();
     }
+
+    ActivityResultLauncher<Intent> someActivityResultLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            new ActivityResultCallback<ActivityResult>() {
+                @Override
+                public void onActivityResult(ActivityResult result) {
+                    if (result.getResultCode() == Activity.RESULT_OK) {
+                        init();
+                        updatetransaction();
+                    }
+                }
+            });
 }

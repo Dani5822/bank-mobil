@@ -1,6 +1,7 @@
 package com.example.bankApp.data.model;
 
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 
 /**
@@ -121,4 +122,21 @@ public class LoggedInUser {
         this.incomeId = incomes;
     }
 
+    @Override
+    public String toString() {
+        return "LoggedInUser{" +
+                "id='" + id + '\'' +
+                ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", role='" + role + '\'' +
+                ", email='" + email + '\'' +
+                ", access_token='" + access_token + '\'' +
+                ", createdAt=" + createdAt +
+                ", updatedAt=" + updatedAt +
+                ", Accounts=" + Arrays.toString(Accounts) +
+                ", expenseId=" + Arrays.toString(expenseId) +
+                ", incomeId=" + Arrays.toString(incomeId) +
+                ", format=" + format +
+                '}';
+    }
 }

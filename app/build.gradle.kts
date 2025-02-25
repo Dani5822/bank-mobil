@@ -35,6 +35,8 @@ android {
 }
 
 dependencies {
+    implementation ("com.google.android.material:material:1.9.0")
+
     implementation("com.squareup.okhttp3:logging-interceptor:4.9.3")
     implementation(libs.appcompat)
     implementation(libs.material)

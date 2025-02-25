@@ -7,10 +7,7 @@ import com.example.bankApp.data.model.LoggedInUser;
 import com.example.bankApp.data.model.currency;
 import com.google.gson.JsonObject;
 
-import org.json.JSONObject;
-
 import java.util.List;
-import java.util.Map;
 
 import retrofit2.Call;
 import retrofit2.http.DELETE;
@@ -68,27 +65,51 @@ public interface RetrofitApiService {
     Call<Card> createCard(@Header("authorization") String token, @Field("currency") String currency, @Field("ownerName") String ownerName, @Field("userId") String userId);
 
     @GET("accounts/user/{id}")
-    Call<Card> getUsersByCardID(@Path("id") String cardid, @Header("authorization") String token);
+    Call<Card[]> getUsersByCardID(@Path("id") String cardid, @Header("authorization") String token);
 
     @GET("accounts/alluser/{id}")
     Call<Card> getCardUsers(@Path("id") String cardid, @Header("authorization") String token);
 
     @PATCH("accounts/disconnect/{id}")
     @FormUrlEncoded
-    Call<Card> disconnectUser(@Header("authorization") String token,@Path("id") String cardid,@Field("userId") String userId);
+    Call<Card> disconnectUser(@Header("authorization") String token, @Path("id") String cardid, @Field("userId") String userId);
 
     @PATCH("accounts/{id}")
     @FormUrlEncoded
-    Call<Card> updateCard(@Header("authorization") String token,@Path("id") String cardid,@Field("currency") String currency);
+    Call<Card> updateCard(@Header("authorization") String token, @Path("id") String cardid, @Field("currency") String currency);
 
     @PATCH("accounts/user/{id}")
     @FormUrlEncoded
-    Call<Card> updateCardUser(@Header("authorization") String token,@Path("id") String cardid,@Field("userId") String userId);
+    Call<Card> updateCardUser(@Header("authorization") String token, @Path("id") String cardid, @Field("userId") String userId);
 
     @PATCH("accounts/user/email/{id}")
     @FormUrlEncoded
-    Call<Card> updateCardUserList(@Header("authorization") String token,@Path("id") String cardid,@Field("email") String email);
+    Call<Card> updateCardUserList(@Header("authorization") String token, @Path("id") String cardid, @Field("email") String email);
 
     @DELETE("accounts/{id}")
-    Call<Card> deleteCard(@Header("authorization") String token,@Path("id") String cardid);
+    Call<Card> deleteCard(@Header("authorization") String token, @Path("id") String cardid);
+
+    @POST("Income")
+    @FormUrlEncoded
+    Call<Income> createIncome(
+            @Header("authorization") String token,
+            @Field("total") Double amount,
+            @Field("description") String description,
+            @Field("bankAccountId") String cardId,
+            @Field("category") String category,
+            @Field("vendor") String vendor,
+            @Field("userId") String userId);
+
+
+    @POST("expense")
+    @FormUrlEncoded
+    Call<Expense> createExpense(
+            @Header("authorization") String token,
+            @Field("total") Double amount,
+            @Field("description") String description,
+            @Field("bankAccountId") String cardId,
+            @Field("category") String category,
+            @Field("vendor") String vendor,
+            @Field("userId") String userId
+    );
 }

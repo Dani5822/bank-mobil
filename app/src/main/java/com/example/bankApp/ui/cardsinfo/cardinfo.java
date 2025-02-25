@@ -8,14 +8,12 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-
 import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -38,18 +36,32 @@ import com.example.bankApp.databinding.FragmentCardinfoBinding;
 import com.example.bankApp.global;
 import com.google.gson.JsonObject;
 
-
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
 public class cardinfo extends Fragment {
 
-    private FragmentCardinfoBinding binding;
     private static String cardId;
+    private FragmentCardinfoBinding binding;
     private String accessToken;
     private CardInfoViewModel cardInfoViewModel;
     private final Observer<Card> cardObserver = this::updateUI;
+    ActivityResultLauncher<Intent> someActivityResultLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            new ActivityResultCallback<ActivityResult>() {
+                @Override
+                public void onActivityResult(ActivityResult result) {
+                    if (result.getResultCode() == Activity.RESULT_OK) {
+                        // There are no request codes
+                        cardInfoViewModel.fetchCardInfo(cardId, accessToken);
+                    }
+                }
+            });
+
+    public static String getCardId() {
+        return cardId;
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -59,7 +71,7 @@ public class cardinfo extends Fragment {
         cardId = getArguments().getString("cardId");
         cardInfoViewModel = new ViewModelProvider(this).get(CardInfoViewModel.class);
 
-        cardInfoViewModel.getCardLiveData().observe(this.getViewLifecycleOwner(),cardObserver);
+        cardInfoViewModel.getCardLiveData().observe(this.getViewLifecycleOwner(), cardObserver);
 
         init();
         binding.addUserButton.setOnClickListener(v -> {
@@ -72,51 +84,59 @@ public class cardinfo extends Fragment {
         binding.delete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                    AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-                    builder.setTitle("Törlés");
-                    builder.setMessage("Biztosan törölni szeretnéd?");
-                    builder.setPositiveButton("Igen", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                RetrofitApiService retrofitApiService = RetrofitClient.getInstance().create(RetrofitApiService.class);
-                retrofitApiService.deleteCard(accessToken, cardId).enqueue(new Callback<Card>() {
+                AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+                builder.setTitle("Törlés");
+                builder.setMessage("Biztosan törölni szeretnéd?");
+                builder.setPositiveButton("Igen", new DialogInterface.OnClickListener() {
                     @Override
-                    public void onResponse(Call<Card> call, Response<Card> response) {
-                        if (response.isSuccessful()) {
-                            Toast.makeText(getContext(), "Sikeres törlés", Toast.LENGTH_SHORT).show();
-                            Navigation.findNavController(view).navigate(R.id.nav_gallery);
-                        } else {
-                            System.out.println(response.message());
-                        }
-                    }
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        RetrofitApiService retrofitApiService = RetrofitClient.getInstance().create(RetrofitApiService.class);
+                        if (((global) getActivity().getApplication()).getId().equals(cardInfoViewModel.getCardLiveData().getValue().getOwnerId())) {
+                            retrofitApiService.deleteCard(accessToken, cardId).enqueue(new Callback<Card>() {
+                                @Override
+                                public void onResponse(Call<Card> call, Response<Card> response) {
+                                    if (response.isSuccessful()) {
+                                        Toast.makeText(getContext(), "Sikeres törlés", Toast.LENGTH_SHORT).show();
+                                        Navigation.findNavController(view).navigate(R.id.nav_gallery);
+                                    } else {
+                                        System.out.println(response.message());
+                                    }
+                                }
 
-                    @Override
-                    public void onFailure(Call<Card> call, Throwable t) {
-                        System.out.println(t.getMessage());
+                                @Override
+                                public void onFailure(Call<Card> call, Throwable t) {
+                                    System.out.println(t.getMessage());
+                                }
+                            });
+
+                        } else {
+                            retrofitApiService.disconnectUser(accessToken, cardId, ((global) getActivity().getApplication()).getId()).enqueue(new Callback<Card>() {
+                                @Override
+                                public void onResponse(Call<Card> call, Response<Card> response) {
+                                    if (response.isSuccessful()) {
+                                        Toast.makeText(getContext(), "Sikeres törlés", Toast.LENGTH_SHORT).show();
+                                        Navigation.findNavController(view).navigate(R.id.nav_gallery);
+                                    } else {
+                                        System.out.println(response.message());
+                                    }
+                                }
+
+                                @Override
+                                public void onFailure(Call<Card> call, Throwable t) {
+                                    System.out.println(t.getMessage());
+                                }
+                            });
+                        }
+
                     }
                 });
-
-                        }
-                    });
-                    builder.setNegativeButton("Nem", null);
-                    AlertDialog dialog =builder.create();
-                    builder.show();
+                builder.setNegativeButton("Nem", null);
+                AlertDialog dialog = builder.create();
+                builder.show();
             }
         });
         return root;
     }
-
-    ActivityResultLauncher<Intent> someActivityResultLauncher = registerForActivityResult(
-            new ActivityResultContracts.StartActivityForResult(),
-            new ActivityResultCallback<ActivityResult>() {
-                @Override
-                public void onActivityResult(ActivityResult result) {
-                    if (result.getResultCode() == Activity.RESULT_OK) {
-                        // There are no request codes
-                        cardInfoViewModel.fetchCardInfo(cardId,accessToken);
-                    }
-                }
-            });
 
     public void init() {
         accessToken = ((global) getActivity().getApplication()).getAccess_token();
@@ -210,18 +230,14 @@ public class cardinfo extends Fragment {
             email.setTextAppearance(R.style.edittext);
 
             lp.weight = 2;
+
+
             delete.setText("Delete");
             delete.setLayoutParams(lp);
             delete.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
             delete.setBackgroundColor(getResources().getColor(R.color.red, null));
+            delete.setVisibility(View.VISIBLE);
             delete.setOnClickListener(v -> {
-                if (user.getId().equals(card.getUsers()[0].getId())) {
-                    Toast.makeText(getContext(), "Nem tudod kitörölni a tulajdonost!", Toast.LENGTH_SHORT).show();
-                    return;
-                } else if (user.getId().equals(((global) getActivity().getApplication()).getId())) {
-                    Toast.makeText(getContext(), "Nem tudod kitörölni magad!", Toast.LENGTH_SHORT).show();
-                    return;
-                }
                 RetrofitApiService retrofitApiService = RetrofitClient.getInstance().create(RetrofitApiService.class);
                 retrofitApiService.disconnectUser(((global) getActivity().getApplication()).getAccess_token(), cardId, user.getId()).enqueue(new Callback<Card>() {
                     @Override
@@ -239,15 +255,17 @@ public class cardinfo extends Fragment {
                     }
                 });
             });
-
             row.addView(name);
             row.addView(email);
             row.addView(delete);
+            if (!user.getId().equals(card.getOwnerId()) && ((global) getActivity().getApplication()).getId().equals(card.getOwnerId())) {
+                delete.setVisibility(View.VISIBLE);
+                delete.setEnabled(true);
+            } else {
+                delete.setVisibility(View.INVISIBLE);
+                delete.setEnabled(false);
+            }
             binding.table.addView(row);
         }
-    }
-
-    public static String getCardId() {
-        return cardId;
     }
 }

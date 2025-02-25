@@ -3,7 +3,6 @@
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="nav_header_title">BankXD</string>
-    <string name="nav_header_subtitle"></string>
     <string name="nav_header_desc">Navigation header</string>
     <string name="action_settings">Settings</string>
     <string name="themechange">Change Theme</string>
@@ -24,5 +23,21 @@
         <item>HUF</item>
         <item>USD</item>
         <item>EUR</item>
+    </string-array>
+
+    <string-array name="expense">
+        <item>Shopping</item>
+        <item>Rent</item>
+        <item>Transport</item>
+        <item>Transfer</item>
+        <item>Transaction</item>
+        <item>Other</item>
+    </string-array>
+
+    <string-array name="income">
+        <item>Salary</item>
+        <item>Transfer</item>
+        <item>Transaction</item>
+        <item>Other</item>
     </string-array>
 </resources>

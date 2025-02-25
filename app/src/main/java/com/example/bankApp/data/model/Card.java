@@ -1,5 +1,6 @@
 package com.example.bankApp.data.model;
 
+import java.util.Arrays;
 import java.util.Date;
 
 public class Card {
@@ -7,6 +8,7 @@ public class Card {
     private String currency;
     private float total;
     private String ownerName;
+    private String ownerId;
     private final Date createdat;
     private Date updatedat;
     private String[] userId;
@@ -15,7 +17,7 @@ public class Card {
     private Income income;
     private LoggedInUser[] Users;
 
-    public Card(String id, Date createdat, String currency, float total, String ownerName, Date updatedat, String[] userId, LoggedInUser user, Expense expense, Income income, LoggedInUser[] users) {
+    public Card(String id, Date createdat,String ownerId, String currency, float total, String ownerName, Date updatedat, String[] userId, LoggedInUser user, Expense expense, Income income, LoggedInUser[] users) {
         this.id = id;
         this.createdat = createdat;
         this.currency = currency;
@@ -27,9 +29,10 @@ public class Card {
         this.expense = expense;
         this.income = income;
         this.Users = users;
+        this.ownerId = ownerId;
     }
 
-    public Card(String id, String currency, float total, String ownerName, Date createdat, Date updatedat, String[] userId, LoggedInUser user, Expense expense, Income income) {
+    public Card(String id, String currency,String ownerId, float total, String ownerName, Date createdat, Date updatedat, String[] userId, LoggedInUser user, Expense expense, Income income) {
         this.id = id;
         this.currency = currency;
         this.total = total;
@@ -40,6 +43,7 @@ public class Card {
         this.user = user;
         this.expense = expense;
         this.income = income;
+        this.ownerId=ownerId;
         this.Users=null;
     }
 
@@ -121,5 +125,31 @@ public class Card {
 
     public void setUsers(LoggedInUser[] users) {
         Users = users;
+    }
+
+    public String getOwnerId() {
+        return ownerId;
+    }
+
+    public void setOwnerId(String ownerId) {
+        this.ownerId = ownerId;
+    }
+
+    @Override
+    public String toString() {
+        return "Card{" +
+                "id='" + id + '\'' +
+                ", currency='" + currency + '\'' +
+                ", total=" + total +
+                ", ownerName='" + ownerName + '\'' +
+                ", ownerId='" + ownerId + '\'' +
+                ", createdat=" + createdat +
+                ", updatedat=" + updatedat +
+                ", userId=" + Arrays.toString(userId) +
+                ", user=" + user +
+                ", expense=" + expense +
+                ", income=" + income +
+                ", Users=" + Arrays.toString(Users) +
+                '}';
     }
 }

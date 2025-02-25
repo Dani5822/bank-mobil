@@ -70,7 +70,7 @@ public class CardsFragment extends Fragment {
     public void init() {
         listView=binding.cardlistview;
         RetrofitApiService service = getInstance().create(RetrofitApiService.class);
-        service.getallcardbyuserid(HomeFragment.getUser().getId(),((global) getActivity().getApplication()).getAccess_token()).enqueue(new Callback<Card[]>() {
+        service.getUsersByCardID(HomeFragment.getUser().getId(),((global) getActivity().getApplication()).getAccess_token()).enqueue(new Callback<Card[]>() {
             @Override
             public void onResponse(Call<Card[]> call, Response<Card[]> response) {
                 if(response.isSuccessful()){
