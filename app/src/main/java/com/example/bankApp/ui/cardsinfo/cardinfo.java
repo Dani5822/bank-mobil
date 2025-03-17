@@ -162,6 +162,8 @@ public class cardinfo extends Fragment {
                 binding.card.balance.setText(String.format("%.2f ", card.getTotal()) + binding.currency.getSelectedItem().toString());
             }
 
+            binding.card.id.setText(card.getId());
+
             binding.save.setOnClickListener(v -> {
                 binding.loading.setVisibility(View.VISIBLE);
                 String currency = binding.currency.getSelectedItem().toString();

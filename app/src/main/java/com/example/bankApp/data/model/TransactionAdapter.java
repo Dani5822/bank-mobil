@@ -1,6 +1,8 @@
 package com.example.bankApp.data.model;
 
 import android.content.Context;
+import android.content.Intent;
+import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -8,8 +10,12 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.example.bankApp.R;
+import androidx.navigation.Navigation;
 
+import com.example.bankApp.R;
+import com.example.bankApp.ui.transaction_details.transaction_details;
+
+import java.math.BigDecimal;
 import java.util.ArrayList;
 
 public class TransactionAdapter extends BaseAdapter {
@@ -47,7 +53,7 @@ public class TransactionAdapter extends BaseAdapter {
         ImageView transactionIcon = view.findViewById(R.id.kep);
 
         transactionName.setText(tarnsactionList.get(i).getCategory());
-        transactionAmount.setText(tarnsactionList.get(i).getTotal() + "");
+        transactionAmount.setText(new BigDecimal(tarnsactionList.get(i).getTotal()).toPlainString());
         transactioncategory.setText(tarnsactionList.get(i).getDescription());
         if (tarnsactionList.get(i).getClass() == Income.class) {
             switch (tarnsactionList.get(i).getCategory()) {
@@ -81,6 +87,22 @@ public class TransactionAdapter extends BaseAdapter {
             }
 
         }
+
+        view.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View view) {
+                Bundle bundle = new Bundle();
+
+                if(tarnsactionList.get(i).getClass() == Income.class){
+                    bundle.putString("Income", tarnsactionList.get(i).getId());
+                }else{
+                    bundle.putString("Expense", tarnsactionList.get(i).getId());
+                }
+
+                Navigation.findNavController(view).navigate(R.id.transaction_details,bundle);
+            }
+        });
 
         return view;
     }

@@ -15,8 +15,10 @@ public class Transaction {
     private Date repeatEnd;
     private final Date createdAt;
     private Date updatedAt;
+    private Date lastChange;
+    private  String repeatableTransactionId;
 
-    public Transaction(String id, Date createdAt, String category, String description, float total, String userId, String accountId, int repeatAmmount, String repeateMetric, Date repeateStart, Date repeatEnd, Date updatedAt) {
+    public Transaction(String id, Date createdAt, String category, String description, float total, String userId, String accountId, int repeatAmmount, String repeateMetric, Date repeateStart, Date repeatEnd, Date updatedAt,Date lastChange,String repeatableTransactionId) {
         this.id = id;
         this.createdAt = createdAt;
         this.category = category;
@@ -29,6 +31,8 @@ public class Transaction {
         this.repeateStart = repeateStart;
         this.repeatEnd = repeatEnd;
         this.updatedAt = updatedAt;
+        this.lastChange= lastChange;
+        this.repeatableTransactionId=repeatableTransactionId;
     }
 
     public String getId() {
@@ -119,6 +123,22 @@ public class Transaction {
         this.updatedAt = updatedAt;
     }
 
+    public Date getLastChange() {
+        return lastChange;
+    }
+
+    public void setLastChange(Date lastChange) {
+        this.lastChange = lastChange;
+    }
+
+    public String getRepeatableTransactionId() {
+        return repeatableTransactionId;
+    }
+
+    public void setRepeatableTransactionId(String repeatableTransactionId) {
+        this.repeatableTransactionId = repeatableTransactionId;
+    }
+
     @Override
     public String toString() {
         return "Transaction{" +
@@ -134,6 +154,8 @@ public class Transaction {
                 ", repeatEnd=" + repeatEnd +
                 ", createdAt=" + createdAt +
                 ", updatedAt=" + updatedAt +
+                ", lastChange=" + lastChange +
+                ", repeatableTransactionId=" + repeatableTransactionId +
                 '}';
     }
 }

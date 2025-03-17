@@ -7,7 +7,7 @@
     <string name="action_settings">Settings</string>
     <string name="themechange">Change Theme</string>
     <string name="menu_home">Home</string>
-    <string name="menu_cards">Kártyák</string>
+    <string name="menu_cards">Számlák</string>
     <string name="menu_slideshow">Slideshow</string>
     <string name="title_activity_login">LoginActivity</string>
     <string name="prompt_email">Email</string>
@@ -39,5 +39,12 @@
         <item>Transfer</item>
         <item>Transaction</item>
         <item>Other</item>
+    </string-array>
+
+    <string-array name="metrik">
+        <item>Day</item>
+        <item>Week</item>
+        <item>Month</item>
+        <item>Year</item>
     </string-array>
 </resources>

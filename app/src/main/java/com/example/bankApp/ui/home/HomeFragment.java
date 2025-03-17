@@ -19,6 +19,7 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.MutableLiveData;
 
 import com.example.bankApp.R;
 import com.example.bankApp.data.connect.RetrofitApiService;
@@ -27,12 +28,14 @@ import com.example.bankApp.data.model.Expense;
 import com.example.bankApp.data.model.Income;
 import com.example.bankApp.data.model.LoggedInUser;
 import com.example.bankApp.data.model.OnSwipeTouchListener;
+import com.example.bankApp.data.model.RepeatableTransaction;
 import com.example.bankApp.data.model.Transaction;
 import com.example.bankApp.data.model.TransactionAdapter;
 import com.example.bankApp.data.model.currency;
 import com.example.bankApp.databinding.FragmentHomeBinding;
 import com.example.bankApp.global;
 
+import java.math.BigInteger;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -80,7 +83,6 @@ public class HomeFragment extends Fragment {
     private void init() {
         String id = ((global) getActivity().getApplication()).getId();
         RetrofitApiService apiService = getInstance().create(RetrofitApiService.class);
-
         apiService.getUserById(id, ((global) getActivity().getApplication()).getAccess_token()).enqueue(new Callback<LoggedInUser>() {
             @Override
             public void onResponse(Call<LoggedInUser> call, Response<LoggedInUser> response) {
@@ -89,6 +91,9 @@ public class HomeFragment extends Fragment {
                     transactions.clear();
                     if (user.getCards().length > 0) {
                         activeCard = user.getCards()[0];
+                        for (Card cards : user.getCards()) {
+                            updateRepeatTransactions(cards.getId());
+                        }
                     }
                     updateUI();
                 } else {
@@ -143,8 +148,27 @@ public class HomeFragment extends Fragment {
                 someActivityResultLauncher.launch(intent);
             }
         });
-
     }
+
+    private void updateRepeatTransactions(String cardId) {
+        RetrofitApiService apiService = getInstance().create(RetrofitApiService.class);
+
+                apiService.updateRepeatableTransactions( ((global) getActivity().getApplication()).getAccess_token(), cardId, user.getId()).enqueue(new Callback<RepeatableTransaction>() {
+                    @Override
+                    public void onResponse(Call<RepeatableTransaction> call, Response<RepeatableTransaction> response) {
+                        if (response.isSuccessful() && response.body() != null) {
+                            updateUI();
+                        } else {
+                            System.out.println("Error fetching repeatable transactions: " + response.message());
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<RepeatableTransaction> call, Throwable t) {
+                        System.out.println("Error fetching repeatable transactions: " + t.getMessage());
+                    }
+                });
+            }
 
     private void fetchPastCurrency(int retryCount) {
         if (retryCount <= 0) {
@@ -161,13 +185,14 @@ public class HomeFragment extends Fragment {
                     updatechange();
 
                 } else {
+                    System.out.println("Error fetching current currency: " + response.message());
                     fetchPastCurrency(retryCount - 1);
                 }
             }
 
             @Override
             public void onFailure(Call<currency> call, Throwable t) {
-
+                System.out.println("Error fetching current currency: " + t.getMessage());
             }
         });
 
@@ -219,10 +244,10 @@ public class HomeFragment extends Fragment {
 
                 @Override
                 public void onFailure(Call<Expense[]> call, Throwable t) {
+                    expenses.clear();
                     System.out.println("Error fetching expenses: " + t.getMessage());
                 }
             });
-
             apiService.getallinbycardid(card.getId(), ((global) getActivity().getApplication()).getAccess_token()).enqueue(new Callback<Income[]>() {
                 @Override
                 public void onResponse(Call<Income[]> call, Response<Income[]> response) {
@@ -240,6 +265,7 @@ public class HomeFragment extends Fragment {
 
                 @Override
                 public void onFailure(Call<Income[]> call, Throwable t) {
+                    incomes.clear();
                     System.out.println("Error fetching incomes: " + t.getMessage());
                 }
             });
@@ -255,18 +281,35 @@ public class HomeFragment extends Fragment {
         notifyDataSetChanged();
         if (transactions.size() > 0 && transactions != null) {
             transactions.sort((a, b) -> b.getCreatedAt().compareTo(a.getCreatedAt()));
-                binding.transactionsListView.setAdapter(new TransactionAdapter(transactions, HomeFragment.this.getContext()));
+            binding.transactionsListView.setAdapter(new TransactionAdapter(transactions, HomeFragment.this.getContext()));
         }
         updateTotal();
     }
 
-    public void updateTotal(){
-        if (activeCard.getCurrency().equals("HUF")) {
-            int x = Math.round(activeCard.getTotal());
-            binding.cardlayout.balance.setText(x + " HUF");
-        } else {
-            binding.cardlayout.balance.setText(String.format("%.2f", activeCard.getTotal()) + " " + activeCard.getCurrency());
-        }
+    public void updateTotal() {
+        RetrofitApiService apiService = getInstance().create(RetrofitApiService.class);
+        apiService.getCardById(activeCard.getId(), ((global) getActivity().getApplication()).getAccess_token()).enqueue(new Callback<Card>() {
+            @Override
+            public void onResponse(Call<Card> call, Response<Card> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    activeCard = response.body();
+                    if (activeCard.getCurrency().equals("HUF")) {
+                        BigInteger x = BigInteger.valueOf(activeCard.getTotal());
+                        binding.cardlayout.balance.setText(x + " HUF");
+                    } else {
+                        binding.cardlayout.balance.setText(String.format("%.2f", activeCard.getTotal()) + " " + activeCard.getCurrency());
+                    }
+                } else {
+                    System.out.println("Error fetching card: " + response.message());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Card> call, Throwable t) {
+                System.out.println("Error fetching card: " + t.getMessage());
+            }
+        });
+
     }
 
     private void notifyDataSetChanged() {
@@ -293,8 +336,10 @@ public class HomeFragment extends Fragment {
             binding.arfolyam2.change.setText(String.format("%.2f", pastUsd) + " (" + String.format("%.2f", szazalek2) + "%)");
             binding.arfolyam2.iconbal.setImageResource(szazalek2 >= 0 ? R.drawable.up : R.drawable.down);
         } else {
+            if(binding!=null&&binding.arfolyam1!=null&&binding.arfolyam2!=null){
             binding.arfolyam1.change.setText("N/A (0%)");
             binding.arfolyam2.change.setText("N/A (0%)");
+            }
         }
     }
 
@@ -348,5 +393,6 @@ public class HomeFragment extends Fragment {
                         updatetransaction();
                     }
                 }
-            });
+            }
+    );
 }

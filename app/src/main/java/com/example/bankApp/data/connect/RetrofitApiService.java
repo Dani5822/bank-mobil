@@ -4,6 +4,7 @@ import com.example.bankApp.data.model.Card;
 import com.example.bankApp.data.model.Expense;
 import com.example.bankApp.data.model.Income;
 import com.example.bankApp.data.model.LoggedInUser;
+import com.example.bankApp.data.model.RepeatableTransaction;
 import com.example.bankApp.data.model.currency;
 import com.google.gson.JsonObject;
 
@@ -97,7 +98,6 @@ public interface RetrofitApiService {
             @Field("description") String description,
             @Field("bankAccountId") String cardId,
             @Field("category") String category,
-            @Field("vendor") String vendor,
             @Field("userId") String userId);
 
 
@@ -109,7 +109,59 @@ public interface RetrofitApiService {
             @Field("description") String description,
             @Field("bankAccountId") String cardId,
             @Field("category") String category,
-            @Field("vendor") String vendor,
             @Field("userId") String userId
     );
+
+    @POST("repeatabletransaction")
+    @FormUrlEncoded
+    Call<RepeatableTransaction> createRepeatableTransaction(
+            @Header("authorization") String token,
+            @Field("total") Double amount,
+            @Field("category") String category,
+            @Field("description") String description,
+            @Field("accountId") String cardId,
+            @Field("repeatAmount") int repeatAmount,
+            @Field("repeatMetric") String repeatMetric,
+            @Field("repeatStart") String repeatStart,
+            @Field("repeatEnd") String repeatEnd,
+            @Field("userId") String userId
+    );
+
+    @PATCH("repeatabletransaction/update/{id}")
+    @FormUrlEncoded
+    Call<RepeatableTransaction> updateRepeatableTransactions(
+            @Header("authorization") String token,
+            @Path("id") String accountid,
+            @Field("userId") String userId
+    );
+
+    @GET("accounts/{id}")
+    Call<Card> getCardById(@Path("id") String cardid, @Header("authorization") String token);
+
+    @POST("accounts/transfer")
+    @FormUrlEncoded
+    Call<Card> createTransfer(@Header("authorization") String accessToken,
+                              @Field("ammount") Double total,
+                              @Field("accountfrom") String from,
+                              @Field("accountto") String to,
+                              @Field("userId") String userId);
+
+    @GET("expense/{id}")
+    Call<Expense> getExpenseById(@Path("id") String expenseid, @Header("authorization") String token);
+
+    @GET("income/{id}")
+    Call<Income> getIncomeById(@Path("id") String incomeid, @Header("authorization") String token);
+
+
+    @GET("repeatabletransaction/{id}")
+    Call<RepeatableTransaction> getRepeatableTransactionById(@Path("id") String repeatableTransactionId, @Header("authorization") String token);
+
+    @DELETE("repeatabletransaction/{id}")
+    Call<RepeatableTransaction> deleteRepeatableTransaction(@Path("id") String repeatableTransactionId, @Header("authorization") String token);
+
+    @DELETE("expense/{id}")
+    Call<Expense> deleteExpenseTransaction(@Path("id") String id,@Header("authorization") String token);
+
+    @DELETE("Income/{id}")
+    Call<Income> deleteIncomeTransaction(@Path("id") String id,@Header("authorization") String token);
 }

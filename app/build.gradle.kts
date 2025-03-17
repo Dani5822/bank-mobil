@@ -16,6 +16,7 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+
     buildTypes {
         release {
             isMinifyEnabled = false
@@ -35,8 +36,10 @@ android {
 }
 
 dependencies {
-    implementation ("com.google.android.material:material:1.9.0")
+    implementation("com.squareup.okhttp3:okhttp:3.14.0")
 
+    implementation ("com.github.PhilJay:MPAndroidChart:v3.1.0")
+    implementation ("com.google.android.material:material:1.9.0")
     implementation("com.squareup.okhttp3:logging-interceptor:4.9.3")
     implementation(libs.appcompat)
     implementation(libs.material)

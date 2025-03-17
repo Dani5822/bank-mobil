@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.navigateside"
+    namespace = "com.example.bankApp"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.example.navigateside"
+        applicationId = "com.example.bankApp"
         minSdk = 26
         targetSdk = 35
         versionCode = 1

@@ -1,14 +1,14 @@
-package com.example.bankApp.ui.arfolyamok;
+package com.example.bankApp.ui.statistic;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-public class arfolyamokViewModel extends ViewModel {
+public class statisticViewModel extends ViewModel {
 
     private final MutableLiveData<String> mText;
 
-    public arfolyamokViewModel() {
+    public statisticViewModel() {
         mText = new MutableLiveData<>();
         mText.setValue("This is slideshow fragment");
     }

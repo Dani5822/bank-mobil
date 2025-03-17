@@ -19,12 +19,17 @@
 
         <fragment
             android:id="@+id/nav_slideshow"
-            android:name="com.example.bankApp.ui.arfolyamok.arfolyamokFragment"
+            android:name="com.example.bankApp.ui.statistic.statisticFragment"
             android:label="@string/menu_slideshow"
-            tools:layout="@layout/fragment_arfolyamok" />
+            tools:layout="@layout/fragment_statistic" />
     <fragment
         android:id="@+id/cardinfo"
         android:name="com.example.bankApp.ui.cardsinfo.cardinfo"
-        android:label="cardinfo" />
+        android:label="Kártya Részletek" />
+    <fragment
+        android:id="@+id/transaction_details"
+        android:name="com.example.bankApp.ui.transaction_details.transaction_details"
+        android:label="Tranzakzió részletek"
+        tools:layout="@layout/transaction_details" />
 
 </navigation>
