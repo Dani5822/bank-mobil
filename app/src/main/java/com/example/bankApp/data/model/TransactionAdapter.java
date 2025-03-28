@@ -16,6 +16,7 @@ import com.example.bankApp.R;
 import com.example.bankApp.ui.transaction_details.transaction_details;
 
 import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
 public class TransactionAdapter extends BaseAdapter {
@@ -54,7 +55,9 @@ public class TransactionAdapter extends BaseAdapter {
 
         transactionName.setText(tarnsactionList.get(i).getCategory());
         transactionAmount.setText(new BigDecimal(tarnsactionList.get(i).getTotal()).toPlainString());
-        transactioncategory.setText(tarnsactionList.get(i).getDescription());
+        String ido=new SimpleDateFormat("yyyy MM dd").format(tarnsactionList.get(i).getCreatedAt());
+        transactioncategory.setText(ido);
+
         if (tarnsactionList.get(i).getClass() == Income.class) {
             switch (tarnsactionList.get(i).getCategory()) {
                 case "Salary":

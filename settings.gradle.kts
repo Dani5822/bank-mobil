@@ -21,5 +21,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "navigateside"
+rootProject.name = "bankApp"
 include(":app")

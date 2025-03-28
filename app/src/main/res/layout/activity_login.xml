@@ -79,7 +79,7 @@
         android:layout_marginBottom="64dp"
         style="@style/button"
         android:enabled="true"
-        android:text="register"
+        android:text="Regisztráció"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

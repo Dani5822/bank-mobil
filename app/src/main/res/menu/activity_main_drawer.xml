@@ -14,8 +14,8 @@
             android:icon="@drawable/cards"
             android:title="@string/menu_cards" />
         <item
-            android:id="@+id/nav_slideshow"
-            android:icon="@drawable/ic_menu_slideshow"
-            android:title="@string/menu_slideshow" />
+            android:id="@+id/arfolyamok"
+            android:icon="@drawable/exchange"
+            android:title="@string/exchange" />
     </group>
 </menu>

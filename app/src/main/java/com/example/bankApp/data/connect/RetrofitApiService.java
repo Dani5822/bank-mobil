@@ -124,7 +124,8 @@ public interface RetrofitApiService {
             @Field("repeatMetric") String repeatMetric,
             @Field("repeatStart") String repeatStart,
             @Field("repeatEnd") String repeatEnd,
-            @Field("userId") String userId
+            @Field("userId") String userId,
+            @Field("name") String name
     );
 
     @PATCH("repeatabletransaction/update/{id}")
@@ -156,12 +157,38 @@ public interface RetrofitApiService {
     @GET("repeatabletransaction/{id}")
     Call<RepeatableTransaction> getRepeatableTransactionById(@Path("id") String repeatableTransactionId, @Header("authorization") String token);
 
+    @GET("repeatabletransaction/expense/{id}")
+    Call<RepeatableTransaction> getRepeatableTransactionByIdWithExpenses(@Path("id") String repeatableTransactionId, @Header("authorization") String token);
+
+
     @DELETE("repeatabletransaction/{id}")
     Call<RepeatableTransaction> deleteRepeatableTransaction(@Path("id") String repeatableTransactionId, @Header("authorization") String token);
+
+    @DELETE("repeatabletransaction/stop/{id}")
+    Call<RepeatableTransaction> stopRepeatableTransaction(@Path("id") String repeatableTransactionId, @Header("authorization") String token);
+
 
     @DELETE("expense/{id}")
     Call<Expense> deleteExpenseTransaction(@Path("id") String id,@Header("authorization") String token);
 
     @DELETE("Income/{id}")
     Call<Income> deleteIncomeTransaction(@Path("id") String id,@Header("authorization") String token);
+
+    @GET("accounts/allrepeat/{id}")
+    Call<RepeatableTransaction[]> getAllRepeatableTransactions(@Path("id") String cardid, @Header("authorization") String token);
+
+    @PATCH("repeatabletransaction/{id}")
+    @FormUrlEncoded
+    Call<RepeatableTransaction> updateRepeatableTransaction(
+            @Header("authorization") String token,
+            @Path("id") String repeatableTransactionId,
+            @Field("total") Double amount,
+            @Field("category") String category,
+            @Field("description") String description,
+            @Field("repeatAmount") int repeatAmount,
+            @Field("repeatMetric") String repeatMetric,
+            @Field("repeatStart") String repeatStart,
+            @Field("repeatEnd") String repeatEnd,
+            @Field("name") String name
+    );
 }

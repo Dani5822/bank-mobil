@@ -191,7 +191,7 @@ public class Transaction extends AppCompatActivity {
                         binding.loading.setVisibility(View.GONE);
                     } else {
 
-                        apiService.createRepeatableTransaction(accessToken, Double.valueOf(binding.total.getText().toString()),binding.category.getSelectedItem().toString(),binding.description.getText().toString(),cardId,Integer.valueOf(binding.ammount.getText().toString()),binding.metrik.getSelectedItem().toString(),binding.datestart.getText().toString(),binding.datened.getText().toString(),userId).enqueue(new Callback<RepeatableTransaction>() {
+                        apiService.createRepeatableTransaction(accessToken, Double.valueOf(binding.total.getText().toString()),binding.category.getSelectedItem().toString(),binding.description.getText().toString(),cardId,Integer.valueOf(binding.ammount.getText().toString()),binding.metrik.getSelectedItem().toString(),binding.datestart.getText().toString(),binding.datened.getText().toString(),userId,binding.name.getText().toString()).enqueue(new Callback<RepeatableTransaction>() {
                             @Override
                             public void onResponse(Call<RepeatableTransaction> call, Response<RepeatableTransaction> response) {
                                 if(response.isSuccessful()){

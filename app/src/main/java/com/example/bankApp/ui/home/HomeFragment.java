@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
@@ -20,6 +21,7 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.MutableLiveData;
+import androidx.navigation.Navigation;
 
 import com.example.bankApp.R;
 import com.example.bankApp.data.connect.RetrofitApiService;
@@ -109,7 +111,6 @@ public class HomeFragment extends Fragment {
         });
 
 
-        fetchPastCurrency(1);
         db = 0;
         binding.cardlayout.card.setOnTouchListener(new OnSwipeTouchListener(getContext()) {
 
@@ -148,6 +149,31 @@ public class HomeFragment extends Fragment {
                 someActivityResultLauncher.launch(intent);
             }
         });
+
+        binding.statistic.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Bundle bundle = new Bundle();
+                bundle.putString("activeCardId",activeCard.getId());
+                Navigation.findNavController(view).navigate(R.id.statisticFragment,bundle);
+            }
+        });
+
+        binding.arfolyam.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Navigation.findNavController(view).navigate(R.id.arfolyamok);
+            }
+        });
+
+        binding.repetableinfo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Bundle bundle = new Bundle();
+                bundle.putString("activeCardId",activeCard.getId());
+                Navigation.findNavController(view).navigate(R.id.repetableTransaction,bundle);
+            }
+        });
     }
 
     private void updateRepeatTransactions(String cardId) {
@@ -170,60 +196,12 @@ public class HomeFragment extends Fragment {
                 });
             }
 
-    private void fetchPastCurrency(int retryCount) {
-        if (retryCount <= 0) {
-            return;
-        }
 
-        LocalDate x = LocalDate.now();
-        RetrofitApiService currencyService = getEuroInstance().create(RetrofitApiService.class);
-        currencyService.GetCurrencyByDate(x.toString(), "eur").enqueue(new Callback<currency>() {
-            @Override
-            public void onResponse(Call<currency> call, Response<currency> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    currentCurrency = response.body();
-                    updatechange();
-
-                } else {
-                    System.out.println("Error fetching current currency: " + response.message());
-                    fetchPastCurrency(retryCount - 1);
-                }
-            }
-
-            @Override
-            public void onFailure(Call<currency> call, Throwable t) {
-                System.out.println("Error fetching current currency: " + t.getMessage());
-            }
-        });
-
-        if (LocalTime.now().getHour() >= 16) {
-            x = x.minusDays(0);
-        } else {
-            x = x.minusDays(1);
-        }
-        currencyService.GetCurrencyByDate(x.toString(), "eur").enqueue(new Callback<currency>() {
-            @Override
-            public void onResponse(Call<currency> call, Response<currency> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    pastcurrency = response.body();
-                    updatechange();
-
-                } else {
-                    fetchPastCurrency(retryCount - 1);
-                }
-            }
-
-            @Override
-            public void onFailure(Call<currency> call, Throwable t) {
-                fetchPastCurrency(retryCount - 1);
-            }
-        });
-    }
 
     private void updateUI() {
         RetrofitApiService apiService = getInstance().create(RetrofitApiService.class);
         Card card = activeCard;
-        if (card != null) {
+        if (binding!=null&&card != null && binding.cardlayout!=null) {
             updateTotal();
             binding.cardlayout.cardname.setText(card.getOwnerName());
 
@@ -269,8 +247,6 @@ public class HomeFragment extends Fragment {
                     System.out.println("Error fetching incomes: " + t.getMessage());
                 }
             });
-        } else {
-            binding.cardlayout.card.setImageResource(R.drawable.nocard);
         }
     }
 
@@ -279,7 +255,7 @@ public class HomeFragment extends Fragment {
         transactions.addAll(incomes);
         transactions.addAll(expenses);
         notifyDataSetChanged();
-        if (transactions.size() > 0 && transactions != null) {
+        if (binding!=null&&transactions.size() > 0 && transactions != null) {
             transactions.sort((a, b) -> b.getCreatedAt().compareTo(a.getCreatedAt()));
             binding.transactionsListView.setAdapter(new TransactionAdapter(transactions, HomeFragment.this.getContext()));
         }
@@ -291,7 +267,7 @@ public class HomeFragment extends Fragment {
         apiService.getCardById(activeCard.getId(), ((global) getActivity().getApplication()).getAccess_token()).enqueue(new Callback<Card>() {
             @Override
             public void onResponse(Call<Card> call, Response<Card> response) {
-                if (response.isSuccessful() && response.body() != null) {
+                if (response.isSuccessful() && response.body() != null &&binding!=null&& binding.cardlayout != null) {
                     activeCard = response.body();
                     if (activeCard.getCurrency().equals("HUF")) {
                         BigInteger x = BigInteger.valueOf(activeCard.getTotal());
@@ -313,33 +289,8 @@ public class HomeFragment extends Fragment {
     }
 
     private void notifyDataSetChanged() {
-        if (binding.transactionsListView.getAdapter() != null) {
+        if (binding!=null&&binding.transactionsListView!=null&&binding.transactionsListView.getAdapter() != null) {
             ((TransactionAdapter) binding.transactionsListView.getAdapter()).notifyDataSetChanged();
-        }
-    }
-
-    public void updatechange() {
-        if (pastcurrency != null && currentCurrency != null) {
-            binding.arfolyam1.currency.setText("EUR");
-            double huf = pastcurrency.getEur().getOrDefault("huf", 0.0);
-            double currentHuf = currentCurrency.getEur().getOrDefault("huf", 0.0);
-            double szazalek = huf != 0 ? ((currentHuf - huf) / huf) * 100 : 0;
-            binding.arfolyam1.currentrate.setText(String.format("%.2f HUF", currentHuf));
-            binding.arfolyam1.change.setText(String.format("%.2f", huf) + " (" + String.format("%.2f", szazalek) + "%)");
-            binding.arfolyam1.iconbal.setImageResource(szazalek >= 0 ? R.drawable.up : R.drawable.down);
-
-            binding.arfolyam2.currency.setText("USD");
-            double pastUsd = huf / pastcurrency.getEur().getOrDefault("usd", 0.0);
-            double usd = currentHuf / currentCurrency.getEur().getOrDefault("usd", 0.0);
-            double szazalek2 = pastUsd != 0 ? ((usd - pastUsd) / pastUsd) * 100 : 0;
-            binding.arfolyam2.currentrate.setText(String.format("%.2f HUF", usd));
-            binding.arfolyam2.change.setText(String.format("%.2f", pastUsd) + " (" + String.format("%.2f", szazalek2) + "%)");
-            binding.arfolyam2.iconbal.setImageResource(szazalek2 >= 0 ? R.drawable.up : R.drawable.down);
-        } else {
-            if(binding!=null&&binding.arfolyam1!=null&&binding.arfolyam2!=null){
-            binding.arfolyam1.change.setText("N/A (0%)");
-            binding.arfolyam2.change.setText("N/A (0%)");
-            }
         }
     }
 

@@ -4,6 +4,7 @@ import java.util.Date;
 
 public class RepeatableTransaction {
     private String id;
+    private String name;
     private String accountId;
     private String description;
     private double total;
@@ -17,7 +18,7 @@ public class RepeatableTransaction {
     private Expense[] Expenses;
     private  Date createdAt;
 
-    public RepeatableTransaction(String id, String accountId, String description, double total, String category, Date repeatStart, String repeatMetric, int repeatAmount, Date repeatEnd, Date lastChange, Card account, Expense[] expenses, Date createdAt) {
+    public RepeatableTransaction(String id, String name ,String accountId, String description, double total, String category, Date repeatStart, String repeatMetric, int repeatAmount, Date repeatEnd, Date lastChange, Card account, Expense[] expenses, Date createdAt) {
         this.id = id;
         this.accountId = accountId;
         this.description = description;
@@ -31,9 +32,10 @@ public class RepeatableTransaction {
         Account = account;
         this.createdAt = createdAt;
         Expenses = expenses;
+        this.name = name;
     }
 
-    public RepeatableTransaction(String id, String accountId, String description, double total, String category, Date repeatStart, String repeatMetric, int repeatAmount, Date repeatEnd, Date lastChange, Card account, Date createdAt) {
+    public RepeatableTransaction(String id,String name ,String accountId, String description, double total, String category, Date repeatStart, String repeatMetric, int repeatAmount, Date repeatEnd, Date lastChange, Card account, Date createdAt) {
         this.id = id;
         this.accountId = accountId;
         this.description = description;
@@ -47,6 +49,7 @@ public class RepeatableTransaction {
         Account = account;
         this.createdAt = createdAt;
         Expenses = null;
+        this.name = name;
     }
 
     public String getId() {
@@ -151,5 +154,13 @@ public class RepeatableTransaction {
 
     public void setCreatedAt(Date createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }

@@ -17,19 +17,40 @@
         android:label="@string/menu_cards"
         tools:layout="@layout/fragment_cards" />
 
-        <fragment
-            android:id="@+id/nav_slideshow"
-            android:name="com.example.bankApp.ui.statistic.statisticFragment"
-            android:label="@string/menu_slideshow"
-            tools:layout="@layout/fragment_statistic" />
     <fragment
         android:id="@+id/cardinfo"
         android:name="com.example.bankApp.ui.cardsinfo.cardinfo"
-        android:label="Kártya Részletek" />
+        android:label="Kártya Részletek"
+        tools:layout="@layout/fragment_cardinfo"/>
+
     <fragment
         android:id="@+id/transaction_details"
         android:name="com.example.bankApp.ui.transaction_details.transaction_details"
         android:label="Tranzakzió részletek"
         tools:layout="@layout/transaction_details" />
+
+    <fragment
+        android:id="@+id/statisticFragment"
+        android:name="com.example.bankApp.ui.statistic.statisticFragment"
+        android:label="Statisztika"
+        tools:layout="@layout/fragment_statistic" />
+
+    <fragment
+        android:id="@+id/arfolyamok"
+        android:name="com.example.bankApp.ui.arfolyam.arfolyamok"
+        android:label="Árfolyamok"
+        tools:layout="@layout/fragment_arfolyamok" />
+
+    <fragment
+        android:id="@+id/repetableTransaction"
+        android:name="com.example.bankApp.ui.repetabletransaction.repetableTransaction"
+        android:label="Ismétlődő tranzakciók"
+        tools:layout="@layout/fragment_repetable_transaction" />
+    <fragment
+        android:id="@+id/repetable_detail"
+        android:name="com.example.bankApp.ui.repetabletransaction.repetable_detail"
+        android:label="fragment_repetable_detail"
+        tools:layout="@layout/fragment_repetable_detail" />
+
 
 </navigation>

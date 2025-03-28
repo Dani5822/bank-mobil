@@ -5,6 +5,7 @@ import static com.example.bankApp.data.connect.RetrofitClient.getEuroInstance;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.ClipData;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -79,6 +80,16 @@ public class cardinfo extends Fragment {
             intent.putExtra("cardId", cardId);
             someActivityResultLauncher.launch(intent);
 
+        });
+
+        binding.card.id.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                android.content.ClipboardManager clipboard = (android.content.ClipboardManager) getContext().getSystemService(getContext().CLIPBOARD_SERVICE);
+                ClipData clip = ClipData.newPlainText("CardID", cardId);
+                clipboard.setPrimaryClip(clip);
+                Toast.makeText(getContext(), "Kártyaszám vágólapra másolva", Toast.LENGTH_SHORT).show();
+            }
         });
 
         binding.delete.setOnClickListener(new View.OnClickListener() {
@@ -164,16 +175,10 @@ public class cardinfo extends Fragment {
 
             binding.card.id.setText(card.getId());
 
-            binding.save.setOnClickListener(v -> {
-                binding.loading.setVisibility(View.VISIBLE);
-                String currency = binding.currency.getSelectedItem().toString();
-                cardInfoViewModel.fetchCardInfo(cardId, ((global) getActivity().getApplication()).getAccess_token());
-            });
-
             binding.currency.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                 @Override
                 public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                    RetrofitApiService currencyService = getEuroInstance().create(RetrofitApiService.class);
+                    RetrofitApiService currencyService = getEuroInstance(getContext()).create(RetrofitApiService.class);
                     currencyService.getRatesJson(binding.currency.getSelectedItem().toString().toLowerCase()).enqueue(new Callback<JsonObject>() {
                         @Override
                         public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
